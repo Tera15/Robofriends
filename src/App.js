@@ -3,48 +3,41 @@ import CardList from './CardList';
 import Scroll from './Scroll';
 import SearchBox from './SearchBox';
 
+import { connect } from 'react-redux';
+
+import { setSearchField, requestRobots } from './redux/search-field/search-field.actions';
+
 
 
 
 
 
 class App extends Component {
-   constructor(){
-       super() // must call super in order to call this.state
-    this.state = {
-        robots: [], // robots is a state
-        searchfield: '' // searchfield is also a state.  State is passed down from parent to child by passing state as props to the child components
-        
-       }
-   }
+   
 
    componentDidMount() { // invoked when a component is initialized. Good place for network requests.
-       fetch('https://jsonplaceholder.typicode.com/users')
-       .then(response =>  response.json())
-       .then((data) => {
-           this.setState({robots:data})
-       })
-       .catch(console.log('errror'))
+    const {onRequestRobots} = this.props
+    onRequestRobots()
    }
 
-   onSearchChange = (event) => { // arrow syntax ensures that the *this* value comes from where it originated(searchbox component in this case)
-     // gives the value of the searchbox
-     this.setState({searchfield: event.target.value}) // .target.value is used because we are working with an object.
-    // searchfield is one state
-   }
+   
    
     render() {
-     const filteredRobots = this.state.robots.filter(robots => {
-            return robots.name.toLowerCase().includes(this.state.searchfield.toLowerCase());
-        })   // 
 
-        if (this.state.robots.length === 0) {
+        //searchField, and onSearchChange come from props provided by redux functions
+        //props are provided by mapStateToProps and mapDispatchToProps
+        const { searchField, onSearchChange, robots, isPending } = this.props;
+     const filteredRobots = robots.filter(robots => {
+            return robots.name.toLowerCase().includes(searchField.toLowerCase());
+        })    
+
+        if (isPending) {
             return <h1 className='tc'>Loading........</h1>
         } else {
-    return ( // must use *this*  because we are working with an object. 
+    return (  
         <div className='tc'>
             <h1 className="f1">RoboFriends</h1>
-            <SearchBox searchChange={this.onSearchChange}/>
+            <SearchBox searchChange={onSearchChange}/>
             <Scroll>
                 <CardList robots={filteredRobots} /> 
             </Scroll>
@@ -55,4 +48,27 @@ class App extends Component {
 }
 }
 
-export default App;
+const mapStateToProps = state => {
+    // searchField comes from comes from rootReducer and searchField.searchField
+    // come from taking searchFieldReducer.searchField
+    // searchFieldReducer is passed into rootReducer as property of searchField hence
+    // searchField.SearchField  
+    return {
+        searchField: state.searchField.searchField,
+        robots:  state.requestRobots.robots,
+        isPending: state.requestRobots.isPending,
+        error: state.requestRobots.error
+    }
+};
+
+const mapDispatchToProps = dispatch => {
+    // setSearchField from 'search-field.actions.js' is passed into dispatch.
+    return {
+        onSearchChange: event => dispatch(setSearchField(event.target.value)),
+        //requestRobots comes from actions file.
+        // using thunkMiddleware to aysnc requestRobots
+        onRequestRobots: () => dispatch(requestRobots())
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App); 

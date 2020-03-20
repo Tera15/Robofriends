@@ -5,6 +5,7 @@ const CardList = ({robots}) => {
         <div>
             {
                 robots.map((user, i) => {
+                   
                     return (
                         <Card
                         key={i}
@@ -12,7 +13,8 @@ const CardList = ({robots}) => {
                         name={robots[i].name}
                         email={robots[i].email}
                         />
-                    );
+                     );
+                     
                 })
             }
         </div>
