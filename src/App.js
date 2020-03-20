@@ -31,20 +31,22 @@ class App extends Component {
             return robots.name.toLowerCase().includes(searchField.toLowerCase());
         })    
 
-        if (isPending) {
-            return <h1 className='tc'>Loading........</h1>
-        } else {
-    return (  
-        <div className='tc'>
-            <h1 className="f1">RoboFriends</h1>
-            <SearchBox searchChange={onSearchChange}/>
-            <Scroll>
-                <CardList robots={filteredRobots} /> 
-            </Scroll>
+
+
+  return (
+      isPending ? <h1 className='tc'>Loading........</h1> :
+       (  
+             <div className='tc'>
+                 <h1 className="f1">RoboFriends</h1>
+                 <SearchBox searchChange={onSearchChange}/>
+                 <Scroll>
+                    <CardList robots={filteredRobots} /> 
+                </Scroll>
             
-        </div>
-    ); // filteredRobots is passed as a prop to CardList to communicate between the components.
-    }   
+            </div>
+    )   
+  );  
+
 }
 }
 
